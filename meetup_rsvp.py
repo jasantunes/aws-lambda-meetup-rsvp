@@ -28,7 +28,8 @@ def get_rsvp(event_id):
     payload = { 'key': MEETUP_API_KEY, 'event_id': event_id }
     resp = requests.get(url, params=payload, verify=True, timeout=10).json()
     rsvps = resp.get('results')
-    return filter(lambda rsvp: str(rsvp['member']['member_id'])  == MEETUP_MEMBER_ID, rsvps)
+    my_rsvps = list(filter(lambda rsvp: str(rsvp['member']['member_id']) == MEETUP_MEMBER_ID, rsvps))
+    return my_rsvps[0] if len(my_rsvps) >= 1 else None
 
 def send_rsvp_yes(event_id):
     url = POST_RSVP_URL
@@ -81,7 +82,7 @@ def rsvp_for_group_events(group_urlname, regexes = []):
 
 def lambda_handler(event, context):
     try:
-        rsvp_for_group_events('contracostafc', [r'TUESDAY NIGHT: Small game'])
+        rsvp_for_group_events('contracostafc', [r'TUESDAY NIGHT: Small game', 'TUESDAY NIGHT: Big game'])
         # rsvp_for_group_events('Walnut-Creek-Soccer-Meetup', [r'Pick up Soccer'])
     except Exception as e:
         print(e)
