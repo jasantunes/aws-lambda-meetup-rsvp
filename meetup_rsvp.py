@@ -51,7 +51,7 @@ def event_matches_regex(event_name, regex):
 
 def rsvp_for_group_events(group_urlname, regexes = []):
     events = get_events(group_urlname)
-    print("Parsing {} events ...".format(len(events)))
+    print("Parsing %s events ..." % len(events))
 
     for event in events:
         group_name = event['group']['name']
@@ -82,7 +82,7 @@ def rsvp_for_group_events(group_urlname, regexes = []):
 
 def lambda_handler(event, context):
     try:
-        rsvp_for_group_events('contracostafc', [r'TUESDAY NIGHT: Small game', 'TUESDAY NIGHT: Big game'])
+        rsvp_for_group_events('contracostafc', [r'TUESDAY NIGHT: Small game'])
         # rsvp_for_group_events('Walnut-Creek-Soccer-Meetup', [r'Pick up Soccer'])
     except Exception as e:
         print(e)
