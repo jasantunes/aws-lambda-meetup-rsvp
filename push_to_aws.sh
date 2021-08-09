@@ -2,7 +2,7 @@
 set -e
 
 # The Lambda free tier includes 1M free requests per month and 400,000 GB-seconds of compute time per month. ~22 / min
-RULE="rate(5 minutes)"
+RULE="rate(60 minutes)"
 FUNCTION_NAME=meetup_rsvp
 
 TEMP_DIR=$(mktemp -d /tmp/lambda.XXXXXXXXX)
@@ -59,3 +59,6 @@ EOF
 aws events put-targets \
   --rule ${RULE_NAME} \
   --targets file://${TARGET_FILE} > /dev/null
+
+echo "All done."
+echo "Make sure you set the `MEETUP_API_KEY` and `MEETUP_MEMBER_ID` environment variables in the lambda function configuration."

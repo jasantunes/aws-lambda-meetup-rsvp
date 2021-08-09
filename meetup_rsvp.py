@@ -9,7 +9,7 @@ import re
 # Get your MEETUP_API_KEY here: http://www.meetup.com/meetup_api/key/
 MEETUP_API_KEY = os.getenv('MEETUP_API_KEY')
 # Get your MEETUP_MEMBER_ID here: http://www.meetup.com/account/
-MEETUP_MEMBER_ID = os.getenv('MEETUP_MEMBER_ID')
+MEETUP_MEMBER_ID = int(os.getenv('MEETUP_MEMBER_ID'))
 
 API_BASE_URL = 'https://api.meetup.com/'
 EVENTS_URL = API_BASE_URL + '2/events'
@@ -28,7 +28,7 @@ def get_rsvp(event_id):
     payload = { 'key': MEETUP_API_KEY, 'event_id': event_id }
     resp = requests.get(url, params=payload, verify=True, timeout=10).json()
     rsvps = resp.get('results')
-    my_rsvps = list(filter(lambda rsvp: str(rsvp['member']['member_id']) == MEETUP_MEMBER_ID, rsvps))
+    my_rsvps = list(filter(lambda rsvp: rsvp['member']['member_id'] == MEETUP_MEMBER_ID, rsvps))
     return my_rsvps[0] if len(my_rsvps) >= 1 else None
 
 def send_rsvp_yes(event_id):
@@ -46,11 +46,15 @@ def event_is_full(event):
     return False
 
 def event_matches_regex(event_name, regex):
-    match = re.match(regex, event_name)
+    match = re.match(regex, event_name, re.IGNORECASE)
     return bool(match)
 
 def rsvp_for_group_events(group_urlname, regexes = []):
     events = get_events(group_urlname)
+    if events is None:
+        print("Zero events to parse")
+        return
+
     print("Parsing %s events ..." % len(events))
 
     for event in events:
@@ -82,8 +86,7 @@ def rsvp_for_group_events(group_urlname, regexes = []):
 
 def lambda_handler(event, context):
     try:
-        rsvp_for_group_events('contracostafc', [r'TUESDAY NIGHT: Small game'])
-        # rsvp_for_group_events('Walnut-Creek-Soccer-Meetup', [r'Pick up Soccer'])
+        rsvp_for_group_events('some-meetup-name', [r'Daily Meeting - .*day'])
     except Exception as e:
         print(e)
         raise e
